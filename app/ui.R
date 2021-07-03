@@ -27,13 +27,14 @@ library(monocle3)
 library(patchwork)
 library(magrittr)
 
+dataIn <- load('./data.RData')
 
 tagList(
     tags$head(
         #includeHTML(("www/GA.html")), If including google analytics
         tags$style(type = 'text/css','.navbar-brand{display:none;}')
     ),
-    fluidPage(theme = shinytheme('superhero'),
+    fluidPage(theme = shinytheme('yeti'),
             windowTitle = "scRNA",
             titlePanel(
                 fluidRow(
@@ -62,7 +63,9 @@ tagList(
                         column(12, align="center",
                             style="margin-bottom:50px;", 
                             column(2,),
-                            column(8,markdown("Text 
+                            column(8,markdown("Welcome to the scRNAseq data explorer by [the Molecular and Genomics Informatics Core](http://www.bioinformagic.io).
+                                This tool is intended to take an initially processed scRNA data object from the Core's pipeline and allow you to visualize and dive deeper in to the data. 
+                                Each launch is customizable, if you wish to had additional modules added to your specific project please contact the Core. 
                             ")),
                             column(2,)
                             
@@ -72,6 +75,199 @@ tagList(
                 ) 
             ),
 
+        ## UMAP Page
+##########################################################################################################################################################
+            tabPanel('UMAP Clustering',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            h2('test', align='center')
+                            # 
+
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='UMAP',
+                            tabPanel(title='UMAP Plot', hr()
+                            )
+                        )
+                    )
+                )
+            ),
+
+            ## Gene Plots Page
+##########################################################################################################################################################
+            tabPanel('Gene Plots',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            h2('test', align='center')
+                            # 
+
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='Gene Plots',
+                            tabPanel(title='Feature Plot', hr()
+                            
+                            ),
+                            tabPanel(title='Violin Plot', hr()
+                            
+                            ),
+                            tabPanel(title='Ridge Plot', hr()
+                            
+                            )
+
+                        )
+                    )
+                )
+            ),
+
+            ## Marker Genes Page
+##########################################################################################################################################################
+            tabPanel('Marker Genes',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            h2('test', align='center')
+                            # 
+
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='Marker Genes',
+                            tabPanel(title='Tables', hr()
+                            
+                            ),
+                            tabPanel(title='Heatmaps', hr()
+                            
+                            ),
+                            tabPanel(title='Dot Plot', hr()
+                            
+                            )
+
+                        )
+                    )
+                )
+            ),
+
+            ## Signatures Page
+##########################################################################################################################################################
+            tabPanel('Gene Signatures',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            h2('test', align='center')
+                            # 
+
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='Gene Signatures',
+                            tabPanel(title='Cell Cycling', hr()
+                            
+                            ),
+                            tabPanel(title='Gene Lists', hr()
+                            
+                            ),
+                            tabPanel(title='Pseudotime', hr()
+                            
+                            )
+                        )
+                    )
+                )
+            ),
+
+            ## Cross Comparisons Page
+##########################################################################################################################################################
+            tabPanel('Cross Comparisons',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            h2('test', align='center')
+                            # 
+
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='Cross Comparisons',
+                            tabPanel(title='Tables', hr()
+                            
+                            ),
+                            tabPanel(title='Heatmaps', hr()
+                            
+                            ),
+                            tabPanel(title='Violin Plots', hr()
+                            
+                            )
+                        )
+                    )
+                )
+            ),
+
+            ## Idents Page
+##########################################################################################################################################################
+            tabPanel('Idents',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            h2('test', align='center')
+                            # 
+
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='Idents',
+                            tabPanel(title='Ident relabel', hr()
+                            
+                            )
+                        )
+                    )
+                )
+            ),
+
+            ## Reclustering Page
+##########################################################################################################################################################
+            tabPanel('Reclustering',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            h2('test', align='center')
+                            # 
+
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='Reclustering',
+                            tabPanel(title='Cluster selection', hr()
+                            
+                            )
+                        )
+                    )
+                )
+            ),
+
+            ## Autolabel Page
+##########################################################################################################################################################
+            tabPanel('Automated Labeling',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            h2('test', align='center')
+                            # 
+
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='Auto label',
+                            tabPanel(title='Label plot', hr()
+                            
+                            )
+                        )
+                    )
+                )
+            ),
+            
         ## Footer
 ##########################################################################################################################################################
             tags$footer(

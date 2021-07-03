@@ -1,0 +1,6 @@
+# Any testing Rdata files.
+# Remove this for live experiments
+*.RData
+
+# Jupyter Notebook
+.ipynb_checkpoints
