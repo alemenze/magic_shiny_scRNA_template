@@ -24,6 +24,5 @@ docker build . -t gcr.io/$PROJECTID/$PROJECTNAME
 ```
 docker push gcr.io/$PROJECTID/$PROJECTNAME
 ```
-```
-gcloud run deploy --image gcr.io/$PROJECTID/$PROJECTNAME --platform managed --max-instances 1
-```
+
+See Deployment. 
