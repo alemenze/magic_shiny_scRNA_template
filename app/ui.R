@@ -489,20 +489,27 @@ tagList(
                         wellPanel(
                             conditionalPanel("input.Cellphone=='Chord Diagrams'",
                               h2('CellphoneDB Chord Diagrams',align='center'),
-                              selectInput("CellphoneChordSource", label="Select source dataset", choices=NULL)
-                              #colors
-                              #text size
+                              selectInput("CellphoneChordSource", label="Select source dataset", choices=NULL),
+                              p('Color will be built on the palette chosen here:'),
+                              column(4, colourInput("chordcol1", "Color 1", "#FF0000",palette = "limited")),
+                              column(4, colourInput("chordcol2", "Color 2", "#00FF00",palette = "limited")),
+                              column(4, colourInput("chordcol3", "Color 3", "#0000FF",palette = "limited")),
+                              sliderInput('ChordFontSize', label='Font size: ', min=1, max=20, step=1, value=2)
                             ),
                             conditionalPanel("input.Cellphone=='Dot Plots'",
                               h2('CellphoneDB Dot Plots',align='center'),
                               selectInput("CellphoneDotSource", label="Select source dataset", choices=NULL),
                               selectizeInput("cpgenes_select", label="Select gene interaction pairs: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')),
-                              selectizeInput("cpclusters_select", label="Select cluster interaction pairs: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select'))                            
-                              #colors
-                              #text size x
-                              #text size y
-                              #text angle
-
+                              selectizeInput("cpclusters_select", label="Select cluster interaction pairs: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')),
+                              p('Color will be built on the palette chosen here:'),       
+                              column(3, colourInput("dotcol1", "Color 1", "#000000",palette = "limited")),
+                              column(3, colourInput("dotcol2", "Color 2", "#0000FF",palette = "limited")),
+                              column(3, colourInput("dotcol3", "Color 3", "#FFFF00",palette = "limited")),
+                              column(3, colourInput("dotcol4", "Color 4", "#FF0000",palette = "limited")),
+                              sliderInput('cpdotX', label='X Axis Font size: ', min=1, max=30, step=1, value=5),
+                              sliderInput('cpdotY', label='Y Axis Font size: ', min=1, max=30, step=1, value=5),
+                              radioButtons("cpdotang", label='X-Axis Angle', inline=TRUE,
+                                        choices=c('0'=0,'45'=45,'90'=90,'270'=270,'315'=315), selected=45)
                             ),                         
 
                             conditionalPanel("input.Cellphone=='Chord Diagrams' || input.Cellphone=='Dot Plots'",
@@ -510,7 +517,8 @@ tagList(
                               sliderInput('CPWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
                             ),
                             conditionalPanel("input.Cellphone=='Cellphone Tables'",
-                              h2('PLACEHOLDER',align='center')
+                              h2('CellphoneDB Table Data',align='center'),
+                              selectInput("CellphoneTableSource", label="Select source dataset", choices=NULL)
                             )
                         )
                     ),
@@ -541,8 +549,7 @@ tagList(
                               fluidRow(
                                     column(12, align='center',downloadButton('DownloadCPTable', 'Download the CellphoneDB Table'))
                                 )
-                            
-                            ),
+                            )
                         )
                     )
                 )

@@ -12,7 +12,7 @@ RUN R -e "remotes::install_github(repo = 'satijalab/seurat', ref = 'develop')"
 RUN R -e "remotes::install_github('satijalab/seurat-wrappers')"
 RUN R -e "devtools::install_github('cole-trapnell-lab/monocle3')"
 RUN R -e "BiocManager::install(c('clusterProfiler','AnnotationHub','enrichplot'))"
-RUN R -e "install.packages('rhandsontable','circlize')"
+RUN R -e "install.packages(c('rhandsontable','circlize'))"
 
 COPY ./app /srv/shiny-server/
 COPY shiny-customized.config /etc/shiny-server/shiny-server.conf
