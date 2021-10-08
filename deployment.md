@@ -3,6 +3,10 @@
 ```
 PROJECTID=$(gcloud config get-value project)
 PROJECTNAME='projectname'
+cluster_name=
+image_name=
+service_name=
+
 docker build . -t gcr.io/$PROJECTID/$PROJECTNAME
 ```
 ```
@@ -12,7 +16,8 @@ docker push gcr.io/$PROJECTID/$PROJECTNAME
 Since these will exceed what we can use within cloudrun, it would require a kubernetes cluster or similar:
 ## Starting the GKE cluster
 ```
-gcloud container clusters create $cluster_name --machine-type e2-standard-16
+gcloud container clusters create $cluster_name --machine-type=e2-standard-4 --enable-autoscaling --min-nodes=1  --max-nodes=3 --num-nodes=1 --zone=us-east4-a
+
 ```
 *Adjust the machine as needed to fit the size of project*
 

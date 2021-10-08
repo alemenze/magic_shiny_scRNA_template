@@ -11,6 +11,7 @@ library(rhandsontable)
 library(colourpicker)
 library(RColorBrewer)
 library(ggplot2)
+library(circlize)
 
 library(clusterProfiler)
 library(enrichplot)
@@ -475,6 +476,73 @@ tagList(
                             tabPanel(title='Recluster', hr(), 
                               column(12,includeMarkdown("docs/recluster.md"), align='left', hr())
                             )
+                        )
+                    )
+                )
+            ),
+
+            ## Cellphone DB
+##########################################################################################################################################################
+            tabPanel('CellphoneDB',
+                fluidRow(
+                    column(3,
+                        wellPanel(
+                            conditionalPanel("input.Cellphone=='Chord Diagrams'",
+                              h2('CellphoneDB Chord Diagrams',align='center'),
+                              selectInput("CellphoneChordSource", label="Select source dataset", choices=NULL)
+                              #colors
+                              #text size
+                            ),
+                            conditionalPanel("input.Cellphone=='Dot Plots'",
+                              h2('CellphoneDB Dot Plots',align='center'),
+                              selectInput("CellphoneDotSource", label="Select source dataset", choices=NULL),
+                              selectizeInput("cpgenes_select", label="Select gene interaction pairs: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')),
+                              selectizeInput("cpclusters_select", label="Select cluster interaction pairs: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select'))                            
+                              #colors
+                              #text size x
+                              #text size y
+                              #text angle
+
+                            ),                         
+
+                            conditionalPanel("input.Cellphone=='Chord Diagrams' || input.Cellphone=='Dot Plots'",
+                              sliderInput('CPHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
+                              sliderInput('CPWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
+                            ),
+                            conditionalPanel("input.Cellphone=='Cellphone Tables'",
+                              h2('PLACEHOLDER',align='center')
+                            )
+                        )
+                    ),
+                    column(9,
+                        tabsetPanel(id='Cellphone',
+                            tabPanel(title='Chord Diagrams', hr(),
+                              withSpinner(type=6, color='#5bc0de',
+                                    plotOutput("chordplot", height='100%')
+                                ),
+                              fluidRow(align='center',style="margin-top:25px;",
+                                column(12, selectInput("DownCPChordFormat", label='Choose download format', choices=c('jpeg','png','tiff'))),
+                                column(12, downloadButton('DownloadCPChord', 'Download the Chord Diagram'),style="margin-bottom:50px;")
+                              )                            
+                            ),
+                            tabPanel(title='Dot Plots', hr(),
+                              withSpinner(type=6, color='#5bc0de',
+                                    plotOutput("cpdotplot", height='100%')
+                                ),
+                              fluidRow(align='center',style="margin-top:25px;",
+                                column(12, selectInput("DownCPDotFormat", label='Choose download format', choices=c('jpeg','png','tiff'))),
+                                column(12, downloadButton('DownloadCPDot', 'Download the CellphoneDB Dot Plot'),style="margin-bottom:50px;")
+                              )                            
+                            ),
+                            tabPanel(title='Cellphone Tables', hr(),
+                              withSpinner(type=6, color='#5bc0de',
+                                    dataTableOutput('cptable')
+                                ),
+                              fluidRow(
+                                    column(12, align='center',downloadButton('DownloadCPTable', 'Download the CellphoneDB Table'))
+                                )
+                            
+                            ),
                         )
                     )
                 )
