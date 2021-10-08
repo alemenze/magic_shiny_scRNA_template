@@ -168,7 +168,7 @@ monocle_partition <- reactive({
             
             tryCatch({
                 get_earliest_principal_node <- function(cds, origin=input$MonocleRoot){
-                    cell_ids <- which(colData$data(cds)[, "seurat_clusters"] == origin)
+                    cell_ids <- which(colData(cds)[, "seurat_clusters"] == origin)
                     
                     closest_vertex <-cds@principal_graph_aux[["UMAP"]]$pr_graph_cell_proj_closest_vertex
                     closest_vertex <- as.matrix(closest_vertex[colnames(cds), ])
