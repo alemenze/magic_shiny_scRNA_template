@@ -39,9 +39,10 @@ tagList(
             windowTitle = "scRNA",
             titlePanel(
                 fluidRow(
-                #column(4, img(height =75 , src = "")), if I ever want a logo in there
-                column(12, h1(strong('scRNA visualization tool'), align = 'center')),
-                column(12, h2(strong('Project Name'), align = 'center'))
+                column(2, tags$a(href='http://www.bioinformagic.io/', tags$img(height =75 , src = "MaGIC_Icon_0f344c.svg")), align = 'center'), 
+                column(10, fluidRow(
+                  column(10, h1(strong('scRNA Interactive Visualization Tool'), align = 'center')),
+                  column(10, h2(strong('Wood Lab scRNA Tumor Project'), align = 'center'))))
                 ),
                 windowTitle = "scRNA" ),
                 tags$style(type='text/css', '.navbar{font-size:20px;}'),
