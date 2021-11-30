@@ -51,6 +51,8 @@ output$DownloadFeature <- downloadHandler(
 #################################################################
 observe({
     updateSelectInput(session, "GroupBy", choices=c(colnames(data2$data[[input$GSeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')
+})
+observe({
     updateSelectInput(session, "SplitBy", choices=c(colnames(data2$data[[input$GSeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')   
 })
 

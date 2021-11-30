@@ -40,8 +40,10 @@ output$DownloadMarkers <- downloadHandler(
 #################################################################
 observe({
     GenesList=unique(all.markers$gene)
-    updateSelectizeInput(session, "HSelectedGenes", choices=GenesList, server=TRUE, options = list(maxOptions = 50)) 
-    updateSelectInput(session, "HGroupBy", choices=c(colnames(data2$data[[input$SeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')  
+    updateSelectizeInput(session, "HSelectedGenes", choices=GenesList, server=TRUE, options = list(maxOptions = 50))  
+})
+observe({
+    updateSelectInput(session, "HGroupBy", choices=c(colnames(data2$data[[input$SeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters') 
 })
 
 heatmap_plotter <- reactive({
@@ -50,14 +52,25 @@ heatmap_plotter <- reactive({
 
         mapal <- colorRampPalette(RColorBrewer::brewer.pal(11,"RdBu"))(256)
 
-        heatmap_plot <- DoHeatmap(data2$data[[input$MSeuratObject]], features=top$gene, group.by=input$HGroupBy) + NoLegend()+scale_fill_gradientn(colours = rev(mapal)) +theme(axis.text.y = element_text(size = 0))
+        heatmap_plot <- DoHeatmap(data2$data[[input$MSeuratObject]], features=top$gene, group.by=input$HGroupBy) + NoLegend()+scale_fill_gradientn(colours = rev(mapal)) +theme(axis.text.y = element_text(size = input$HLabSize))+theme(
+            axis.text.x = element_text(size=as.numeric(input$MGAxisSize)),
+            plot.title=element_text(size=as.numeric(input$MGTitleSize)),
+            legend.key.size = unit(as.numeric(input$MGLegendKeySize), 'cm'),
+            legend.title = element_text(size=as.numeric(input$MGLegendTitleSize)),
+            legend.text = element_text(size=as.numeric(input$MGLegendFontSize))
+        )
 
     }
     if(input$HeatTop=='Select'){
         validate(need(length(input$HSelectedGenes)>0, message = "Please choose at least 1 gene."))
         mapal <- colorRampPalette(RColorBrewer::brewer.pal(11,"RdBu"))(256)
 
-        heatmap_plot <- DoHeatmap(data2$data[[input$MSeuratObject]], features=c(input$HSelectedGenes, group.by=input$HGroupBy)) + NoLegend()+scale_fill_gradientn(colours = rev(mapal)) +theme(axis.text.y = element_text(size = 0))
+        heatmap_plot <- DoHeatmap(data2$data[[input$MSeuratObject]], features=c(input$HSelectedGenes, group.by=input$HGroupBy)) + NoLegend()+scale_fill_gradientn(colours = rev(mapal)) +theme(axis.text.y = element_text(size = input$HLabSize)) +theme(
+            axis.text.x = element_text(size=as.numeric(input$MGAxisSize)),
+            plot.title=element_text(size=as.numeric(input$MGTitleSize)),
+            legend.key.size = unit(as.numeric(input$MGLegendKeySize), 'cm'),
+            legend.text = element_text(size=as.numeric(input$MGLegendFontSize))
+        )
     }
 
     return(heatmap_plot)
@@ -97,6 +110,8 @@ output$DownloadHeat <- downloadHandler(
 observe({
     GenesList=unique(all.markers$gene)
     updateSelectizeInput(session, "DSelectedGenes", choices=GenesList, server=TRUE, options = list(maxOptions = 50))  
+})
+observe({
     updateSelectInput(session, "DGroupBy", choices=c(colnames(data2$data[[input$SeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')   
 })
 
@@ -104,12 +119,24 @@ dotplot_plotter <- reactive({
     if(input$DotTop=='Tops'){
         dataM$markerslist[[input$MTSeuratObject]] %>% group_by(cluster) %>% top_n(n=input$DotTops, wt=avg_log2FC) -> tops
 
-        dotplot_plot <- DotPlot(data2$data[[input$MSeuratObject]], features=c(tops$gene), group.by=input$DGroupBy)
+        dotplot_plot <- DotPlot(data2$data[[input$MSeuratObject]], features=c(top$gene), group.by=input$DGroupBy)+theme(
+            axis.text.x = element_text(size=as.numeric(input$MGAxisSize)),
+            axis.text.y = element_text(size=as.numeric(input$MGAxisSize)),
+            plot.title=element_text(size=as.numeric(input$MGTitleSize)),
+            legend.key.size = unit(as.numeric(input$MGLegendKeySize), 'cm'),
+            legend.text = element_text(size=as.numeric(input$MGLegendFontSize))
+        )
 
     }
     if(input$DotTop=='Select'){
         validate(need(length(input$DSelectedGenes)>0, message = "Please choose at least 1 gene."))
-        dotplot_plot <- DotPlot(data2$data[[input$MSeuratObject]], features=c(input$DSelectedGenes),group.by=input$DGroupBy)
+        dotplot_plot <- DotPlot(data2$data[[input$MSeuratObject]], features=c(input$DSelectedGenes),group.by=input$DGroupBy)+theme(
+            axis.text.x = element_text(size=as.numeric(input$MGAxisSize)),
+            axis.text.y = element_text(size=as.numeric(input$MGAxisSize)),
+            plot.title=element_text(size=as.numeric(input$MGTitleSize)),
+            legend.key.size = unit(as.numeric(input$MGLegendKeySize), 'cm'),
+            legend.text = element_text(size=as.numeric(input$MGLegendFontSize))
+        )
     }
 
     return(dotplot_plot)

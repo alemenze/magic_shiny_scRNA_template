@@ -42,7 +42,7 @@ tagList(
                 column(2, tags$a(href='http://www.bioinformagic.io/', tags$img(height =75 , src = "MaGIC_Icon_0f344c.svg")), align = 'center'), 
                 column(10, fluidRow(
                   column(10, h1(strong('scRNA Interactive Visualization Tool'), align = 'center')),
-                  column(10, h2(strong('Wood Lab scRNA Tumor Project'), align = 'center'))))
+                  column(10, h2(strong('Template Project'), align = 'center'))))
                 ),
                 windowTitle = "scRNA" ),
                 tags$style(type='text/css', '.navbar{font-size:20px;}'),
@@ -266,7 +266,8 @@ tagList(
                               ),
                               conditionalPanel("input.HeatTop=='Tops'",
                                 sliderInput("HeatMapTops","Number of markers per cluster (if available): ", min=5, max=50, step=5, value=10)
-                              )
+                              ),
+                              sliderInput("HLabSize", "Gene Label Size: ", min=0, max=20, step=1, value=0)
                             ),
                             conditionalPanel("input.MarkerGenes=='Dot Plots'",
                               radioButtons("DotTop",label='Gene selection by:',inline=TRUE, choices=c('Top Genes per Cluster'='Tops','Chosen Genes'='Select'), selected='Tops'),
@@ -279,6 +280,10 @@ tagList(
                               )
                             ),
                             conditionalPanel("input.MarkerGenes=='Heatmaps' || input.MarkerGenes=='Dot Plots'",
+                              sliderInput("MGAxisSize", "Axis Label Size: ", min=1, max=50, step=1, value=10),
+                              sliderInput("MGTitleSize", "Title Size: ", min=1, max=30, step=1, value=10),
+                              sliderInput("MGLegendKeySize", "Legend Key Size: ", min=0.25, max=5, step=0.25, value=1),
+                              sliderInput("MGLegendFontSize", "Legend Font Size: ", min=1, max=30, step=1, value=10),
                               sliderInput('HHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
                               sliderInput('HWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
                             )
@@ -414,11 +419,17 @@ tagList(
                             conditionalPanel("input.CrossComparisons=='Tables'",
                               h2('Cross Comparisons',align='center'),
                               selectInput("CCSeuratObject", label="Select Object Source", choices=NULL),
+                              selectInput("CCIdent", label="Select Grouping", choices=NULL),
                               selectizeInput("CCCluster1", label="Comparison Numerator: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')),
                               selectizeInput("CCCluster2", label="Comparison Denominator: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')), 
                               radioButtons("CCPos",label='Only Positive Markers',inline=TRUE, choices=c('True'='TRUE','False'='FALSE'), selected='TRUE'),
                               sliderInput('CCLog', label='LogFC Threshold: ', min=0.05, max=1, step=0.05, value=0.25),
-                              sliderInput('CCPct', label='Minimum Percentage: ', min=0.01, max=0.5, step=0.01, value=0.1)
+                              sliderInput('CCPct', label='Minimum Percentage: ', min=0.01, max=0.5, step=0.01, value=0.1),
+                              radioButtons("CCOptions",label='Subset Grouping Options',inline=TRUE, choices=c('True'='TRUE','False'='FALSE'), selected='FALSE'),
+                              conditionalPanel("input.CCOptions=='TRUE'",
+                                selectInput("CCSubIdent", label="Select Subset Grouping", choices=NULL),
+                                selectInput("CCSubIdentChoice", label="Subset Ident: ", choices=NULL)
+                              )
                             )
                         )
                     ),
