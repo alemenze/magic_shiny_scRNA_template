@@ -12,6 +12,7 @@ library(colourpicker)
 library(RColorBrewer)
 library(ggplot2)
 library(circlize)
+library(pheatmap)
 
 library(clusterProfiler)
 library(enrichplot)
@@ -24,7 +25,7 @@ library(hdf5r)
 library(cowplot)
 library(SingleR)
 #library(scRNAseq)
-library(slingshot)
+#library(slingshot)
 library(SeuratWrappers)
 library(monocle3)
 library(patchwork)
@@ -42,7 +43,7 @@ tagList(
                 column(2, tags$a(href='http://www.bioinformagic.io/', tags$img(height =75 , src = "MaGIC_Icon_0f344c.svg")), align = 'center'), 
                 column(10, fluidRow(
                   column(10, h1(strong('scRNA Interactive Visualization Tool'), align = 'center')),
-                  column(10, h2(strong('Template Project'), align = 'center'))))
+                  column(10, h2(strong('Project'), align = 'center'))))
                 ),
                 windowTitle = "scRNA" ),
                 tags$style(type='text/css', '.navbar{font-size:20px;}'),
@@ -145,6 +146,10 @@ tagList(
                                         choices=c("True"='TRUE',"False"='FALSE'), selected="TRUE"),
                             sliderInput("UMAPPointSize","Point Size: ", min=0.1, max=10, step=0.1, value=1),
                             sliderInput("UMAPLabelSize","Label Size: ", min=1, max=20, step=1, value=4),
+                            sliderInput("UMAPAxisSize", "Axis Label Size: ", min=1, max=50, step=1, value=10),
+                            sliderInput("UMAPTitleSize", "Title Size: ", min=1, max=30, step=1, value=10),
+                            sliderInput("UMAPLegendKeySize", "Legend Key Size: ", min=0.25, max=5, step=0.25, value=1),
+                            sliderInput("UMAPLegendFontSize", "Legend Font Size: ", min=1, max=30, step=1, value=10),
                             sliderInput('CHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
                             sliderInput('CWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
                         )
@@ -197,6 +202,10 @@ tagList(
                               selectInput("QCGroupBy", label="Group By", choices=NULL),
                               selectInput("QCSplitBy", label="Split By", choices=NULL)
                                 ),
+                            sliderInput("GPAxisSize", "Axis Label Size: ", min=1, max=50, step=1, value=10),
+                            sliderInput("GPTitleSize", "Title Size: ", min=1, max=30, step=1, value=10),
+                            sliderInput("GPLegendKeySize", "Legend Key Size: ", min=0.25, max=5, step=0.25, value=1),
+                            sliderInput("GPLegendFontSize", "Legend Font Size: ", min=1, max=30, step=1, value=10),
                             sliderInput('GHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
                             sliderInput('GWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
                         )
@@ -266,8 +275,7 @@ tagList(
                               ),
                               conditionalPanel("input.HeatTop=='Tops'",
                                 sliderInput("HeatMapTops","Number of markers per cluster (if available): ", min=5, max=50, step=5, value=10)
-                              ),
-                              sliderInput("HLabSize", "Gene Label Size: ", min=0, max=20, step=1, value=0)
+                              )
                             ),
                             conditionalPanel("input.MarkerGenes=='Dot Plots'",
                               radioButtons("DotTop",label='Gene selection by:',inline=TRUE, choices=c('Top Genes per Cluster'='Tops','Chosen Genes'='Select'), selected='Tops'),
@@ -366,9 +374,14 @@ tagList(
                             ## Add GSEA?
                             conditionalPanel("input.GeneSignatures=='Pseudotime'",
                               h2('Monocle Pseudotime',align='center'),
-                              selectInput("MonocleRoot", label='Select Root Node', choices=NULL)
+                              selectInput("MonocleRoot", label='Select Root Node', choices=NULL),
+                              sliderInput("GSLegendTitleSize", "Legend Title Size: ", min=1, max=30, step=1, value=10)
 
                             ),
+                            sliderInput("GSAxisSize", "Axis Label Size: ", min=1, max=50, step=1, value=10),
+                            sliderInput("GSTitleSize", "Title Size: ", min=1, max=30, step=1, value=10),
+                            sliderInput("GSLegendKeySize", "Legend Key Size: ", min=0.25, max=5, step=0.25, value=1),
+                            sliderInput("GSLegendFontSize", "Legend Font Size: ", min=1, max=30, step=1, value=10),
                             sliderInput('CHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
                             sliderInput('CWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
                         )
@@ -508,6 +521,27 @@ tagList(
                               column(4, colourInput("chordcol3", "Color 3", "#0000FF",palette = "limited")),
                               sliderInput('ChordFontSize', label='Font size: ', min=1, max=20, step=1, value=2)
                             ),
+                            conditionalPanel("input.Cellphone=='Heatmaps'",
+                              h2('CellphoneDB Heatmaps',align='center'),
+                              selectInput("CellphoneHMSource", label="Select source dataset", choices=NULL),
+                              radioButtons('CPHRowClust', label='Cluster rows: ', inline=TRUE,
+                                choices=c('True'='TRUE','False'='FALSE'), selected='TRUE'),
+                              radioButtons('CPHColClust', label='Cluster columns: ', inline=TRUE,
+                                choices=c('True'='TRUE','False'='FALSE'), selected='TRUE'),
+                              radioButtons('CPHScale', label='Scale By: ', inline=TRUE,
+                                choices=c('Row'='row','Column'='column','None'='none'), selected='none'),
+                              sliderInput("CPHXsize", 'Label Size', min=1, max=30, step=1, value=10),
+                              radioButtons("CPHang", label='X-Axis Angle', inline=TRUE,
+                                choices=c('0'=0,'45'=45,'90'=90,'270'=270,'315'=315), selected=45),
+                              radioButtons("CPHcolors", label='Heatmap Colors', inline=TRUE, 
+                                choices=c('Default'='Default', 'Select'='Select'), selected='Default'),
+                              conditionalPanel("input.CPHcolors=='Select'",
+                                p('Color will be built on the palette chosen here:'),
+                                column(4, colourInput("cphmcol1", "Color 1", "#FF0000",palette = "limited")),
+                                column(4, colourInput("cphmcol2", "Color 2", "#00FF00",palette = "limited")),
+                                column(4, colourInput("cphmcol3", "Color 3", "#0000FF",palette = "limited"))
+                              )
+                            ),
                             conditionalPanel("input.Cellphone=='Dot Plots'",
                               h2('CellphoneDB Dot Plots',align='center'),
                               selectInput("CellphoneDotSource", label="Select source dataset", choices=NULL),
@@ -524,7 +558,7 @@ tagList(
                                         choices=c('0'=0,'45'=45,'90'=90,'270'=270,'315'=315), selected=45)
                             ),                         
 
-                            conditionalPanel("input.Cellphone=='Chord Diagrams' || input.Cellphone=='Dot Plots'",
+                            conditionalPanel("input.Cellphone=='Chord Diagrams' || input.Cellphone=='Dot Plots' || input.Cellphone=='Heatmaps'",
                               sliderInput('CPHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
                               sliderInput('CPWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
                             ),
@@ -545,6 +579,15 @@ tagList(
                                 column(12, downloadButton('DownloadCPChord', 'Download the Chord Diagram'),style="margin-bottom:50px;")
                               )                            
                             ),
+                            tabPanel(title='Heatmaps', hr(),
+                              withSpinner(type=6, color='#5bc0de',
+                                    plotOutput("cpheatmap", height='100%')
+                                ),
+                              fluidRow(align='center',style="margin-top:25px;",
+                                column(12, selectInput("DownCPHMFormat", label='Choose download format', choices=c('jpeg','png','tiff'))),
+                                column(12, downloadButton('DownloadCPHM', 'Download the CellphoneDB Heatmap'),style="margin-bottom:50px;")
+                              )                            
+                            ),
                             tabPanel(title='Dot Plots', hr(),
                               withSpinner(type=6, color='#5bc0de',
                                     plotOutput("cpdotplot", height='100%')
@@ -561,27 +604,6 @@ tagList(
                               fluidRow(
                                     column(12, align='center',downloadButton('DownloadCPTable', 'Download the CellphoneDB Table'))
                                 )
-                            )
-                        )
-                    )
-                )
-            ),
-
-            ## Autolabel Page
-##########################################################################################################################################################
-            tabPanel('Automated Labeling',
-                fluidRow(
-                    column(3,
-                        wellPanel(
-                            h2('test', align='center')
-                            # 
-
-                        )
-                    ),
-                    column(9,
-                        tabsetPanel(id='Auto label',
-                            tabPanel(title='Label plot', hr()
-                            
                             )
                         )
                     )

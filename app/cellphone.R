@@ -228,3 +228,90 @@ output$DownloadCPTable <- downloadHandler(
         write.csv(cptable_setup(), file)
     }
 )
+
+# Heatmaps
+#################################################################
+
+observe({
+    updateSelectInput(session, "CellphoneHMSource", choices=c(names(cellphone_chords)))
+})
+
+cp_heatmap_plotter <- reactive({
+    cluster_r=TRUE
+    if (input$CPHRowClust=='FALSE'){
+        cluster_r=FALSE
+    }
+    cluster_c=TRUE
+    if (input$CPHColClust=='FALSE'){
+        cluster_c=FALSE
+    }
+
+    if(input$CPHcolors=='Default'){
+        my_colors = brewer.pal(n = 11, name = "RdBu")
+        my_colors = colorRampPalette(my_colors)(50)
+        my_colors = rev(my_colors)
+    } else {
+        my_colors <- colorRampPalette(c(input$cphmcol1, input$cphmcol2, input$cphmcol3), alpha=TRUE)(n=399)
+    }
+    
+
+    pos_pairs <- expand.grid(cellphone_chords[[input$CellphoneHMSource]]$SOURCE, cellphone_chords[[input$CellphoneHMSource]]$TARGET)
+    pos_pairs$pairs <- paste(pos_pairs$Var1, pos_pairs$Var2, sep='|')
+    pairs <- unique(pos_pairs$pairs)
+
+    df <- data.frame(matrix(NA, nrow = length(unique(cellphone_chords[[input$CellphoneHMSource]]$SOURCE)), ncol = (length(unique(cellphone_chords[[input$CellphoneHMSource]]$TARGET)))+1))
+
+    df <- data.frame(Clusters=c(unique(cellphone_chords[[input$CellphoneHMSource]]$SOURCE)))
+    for(f in unique(cellphone_chords[[input$CellphoneHMSource]]$SOURCE)){
+        counts <- c()
+        
+        for(i in pairs){
+            var1 <- strsplit(i, '|')[[1]][1]
+            var2 <- strsplit(i, '|')[[1]][3]
+            if(var1==f){
+                row <- cellphone_chords[[input$CellphoneHMSource]][which(cellphone_chords[[input$CellphoneHMSource]]$SOURCE == var1 & cellphone_chords[[input$CellphoneHMSource]]$TARGET == var2 ),]
+                counts <- c(counts, row$count)
+            }
+            
+        }
+        df[[paste(f)]] <- counts
+    }
+    rownames(df) <- df$Clusters
+    df <- df[order(df$Clusters),]
+    df <- df[,-1]
+    df <- df %>% dplyr::select(order(colnames(df)))
+
+    p <- pheatmap(df,  cluster_rows=cluster_r, cluster_cols=cluster_c, color=my_colors,
+            scale=input$CPHScale, fontsize_col=input$CPHXsize, fontsize_row=input$CPHXsize, angle_col=input$CPHang)
+
+    return(p)
+})
+
+observe({
+    output$cpheatmap <- renderPlot({
+        cp_heatmap_plotter()
+    }, height=input$CPHeight, width=input$CPWidth)
+})
+
+output$DownloadCPHM <- downloadHandler(
+    filename=function(){
+        paste('heatmap',input$DownCPHMFormat,sep='.')
+    },
+    content=function(file){   
+        if(input$DownCPHMFormat=='jpeg'){
+            jpeg(file, height=input$CPHeight, width=input$CPWidth)
+            print(cp_heatmap_plotter)
+            dev.off()
+        }
+        if(input$DownCPHMFormat=='png'){
+            png(file, height=input$CPHeight, width=input$CPWidth)
+            print(cp_heatmap_plotter)
+            dev.off()
+        }
+        if(input$DownCPHMFormat=='tiff'){
+            tiff(file, height=input$CPHeight, width=input$CPWidth)
+            print(cp_heatmap_plotter)
+            dev.off()
+        }
+    }
+)

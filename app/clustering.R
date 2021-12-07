@@ -7,7 +7,13 @@ observe({
 
 umapplotter <- reactive({
     umapplot <- DimPlot(data2$data[[input$SeuratObject]], reduction='umap', label=input$UMAPLabel, group.by=input$SeuratMeta,
-        pt.size=input$UMAPPointSize, label.size=input$UMAPLabelSize); 
+        pt.size=input$UMAPPointSize, label.size=input$UMAPLabelSize) +theme(
+            axis.text.x = element_text(size=as.numeric(input$UMAPAxisSize)),
+            axis.text.y = element_text(size=as.numeric(input$UMAPAxisSize)),
+            plot.title=element_text(size=as.numeric(input$UMAPTitleSize)),
+            legend.key.size = unit(as.numeric(input$UMAPLegendKeySize), 'cm'),
+            legend.text = element_text(size=as.numeric(input$UMAPLegendFontSize))
+        )
     
     return(umapplot)
 })

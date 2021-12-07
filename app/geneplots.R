@@ -13,7 +13,13 @@ feature_plotter <- reactive({
 
     feature_plot <- FeaturePlot(data2$data[[input$GSeuratObject]], features=c(input$gene_select), 
         cols=c(input$NullColor, input$PosColor),
-        pt.size=input$FeaturePointSize); 
+        pt.size=input$FeaturePointSize) +theme(
+            axis.text.x = element_text(size=as.numeric(input$GPAxisSize)),
+            axis.text.y = element_text(size=as.numeric(input$GPAxisSize)),
+            plot.title=element_text(size=as.numeric(input$GPTitleSize)),
+            legend.key.size = unit(as.numeric(input$GPLegendKeySize), 'cm'),
+            legend.text = element_text(size=as.numeric(input$GPLegendFontSize))
+        )
     
     return(feature_plot)
 })
@@ -51,8 +57,6 @@ output$DownloadFeature <- downloadHandler(
 #################################################################
 observe({
     updateSelectInput(session, "GroupBy", choices=c(colnames(data2$data[[input$GSeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')
-})
-observe({
     updateSelectInput(session, "SplitBy", choices=c(colnames(data2$data[[input$GSeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')   
 })
 
@@ -63,7 +67,13 @@ vln_plotter <- reactive({
         pt.size=input$VlnPointSize,
         group.by=input$GroupBy,
         split.by=input$SplitBy
-        ); 
+        ) +theme(
+            axis.text.x = element_text(size=as.numeric(input$GPAxisSize)),
+            axis.text.y = element_text(size=as.numeric(input$GPAxisSize)),
+            plot.title=element_text(size=as.numeric(input$GPTitleSize)),
+            legend.key.size = unit(as.numeric(input$GPLegendKeySize), 'cm'),
+            legend.text = element_text(size=as.numeric(input$GPLegendFontSize))
+        )
     
     return(vln_plot)
 })
@@ -108,7 +118,13 @@ ridge_plotter <- reactive({
 
     ridge_plot <- RidgePlot(data2$data[[input$GSeuratObject]], features=c(input$gene_select), 
         group.by=input$RGroupBy
-        ); 
+        ) +theme(
+            axis.text.x = element_text(size=as.numeric(input$GPAxisSize)),
+            axis.text.y = element_text(size=as.numeric(input$GPAxisSize)),
+            plot.title=element_text(size=as.numeric(input$GPTitleSize)),
+            legend.key.size = unit(as.numeric(input$GPLegendKeySize), 'cm'),
+            legend.text = element_text(size=as.numeric(input$GPLegendFontSize))
+        )
     
     return(ridge_plot)
 })
@@ -158,7 +174,13 @@ vln_plotter_qc <- reactive({
         pt.size=input$QCVlnPointSize,
         group.by=input$QCGroupBy,
         split.by=input$QCSplitBy
-        ); 
+        ) +theme(
+            axis.text.x = element_text(size=as.numeric(input$GPAxisSize)),
+            axis.text.y = element_text(size=as.numeric(input$GPAxisSize)),
+            plot.title=element_text(size=as.numeric(input$GPTitleSize)),
+            legend.key.size = unit(as.numeric(input$GPLegendKeySize), 'cm'),
+            legend.text = element_text(size=as.numeric(input$GPLegendFontSize))
+        )
     
     return(vln_plot)
 })

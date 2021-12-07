@@ -13,29 +13,10 @@ cell_cycler <- reactive({
     withProgress(message='Performing signature enrichment',
         detail='Please stand by...',
         {
-            shiny::setProgress(value=0.2, detail='Converting gene names')
-            # If Mouse:
-            #######################################
-            convertHumanGeneList <- function(x){
-
-            require("biomaRt")
-            human = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
-            mouse = useMart("ensembl", dataset = "mmusculus_gene_ensembl")
-
-            genesV2 = getLDS(attributes = c("hgnc_symbol"), filters = "hgnc_symbol", values = x , mart = human, attributesL = c("mgi_symbol"), martL = mouse, uniqueRows=T)
-
-            humanx <- unique(genesV2[, 2])
-
-            # Print the first 6 genes found to the screen
-            print(head(humanx))
-            return(humanx)
-            }
-
+            
             shiny::setProgress(value=0.6, detail='Scoring the matrix')
-            m.s.genes <- convertHumanGeneList(cc.genes$s.genes)
-            m.g2m.genes <- convertHumanGeneList(cc.genes$g2m.genes)
 
-            score <- CellCycleScoring(data2$data[[input$SSeuratObject]],s.features = m.s.genes, g2m.features = m.g2m.genes, set.ident = TRUE)
+            score <- CellCycleScoring(data2$data[[input$SSeuratObject]],s.features = cc.genes$s.genes, g2m.features = cc.genes$g2m.genes, set.ident = TRUE)
 
             shiny::setProgress(value=0.8, detail='Creating the plot')
 
@@ -44,10 +25,22 @@ cell_cycler <- reactive({
                     pt.size=input$CycleVlnPointSize,
                     group.by=input$CycleGroupBy,
                     split.by=input$CycleSplitBy
+                )+theme(
+                    axis.text.x = element_text(size=as.numeric(input$GSAxisSize)),
+                    axis.text.y = element_text(size=as.numeric(input$GSAxisSize)),
+                    plot.title=element_text(size=as.numeric(input$GSTitleSize)),
+                    legend.key.size = unit(as.numeric(input$GSLegendKeySize), 'cm'),
+                    legend.text = element_text(size=as.numeric(input$GSLegendFontSize))
                 )
             }
             if(input$CyclePlotType=='Feature'){
-                cyclerplot <- DimPlot(score, pt.size=input$CycleFeaturePointSize)
+                cyclerplot <- DimPlot(score, pt.size=input$CycleFeaturePointSize)+theme(
+                    axis.text.x = element_text(size=as.numeric(input$GSAxisSize)),
+                    axis.text.y = element_text(size=as.numeric(input$GSAxisSize)),
+                    plot.title=element_text(size=as.numeric(input$GSTitleSize)),
+                    legend.key.size = unit(as.numeric(input$GSLegendKeySize), 'cm'),
+                    legend.text = element_text(size=as.numeric(input$GSLegendFontSize))
+                )
             }
             return(cyclerplot)
 
@@ -112,6 +105,12 @@ signature_plotter <- reactive({
                     pt.size=input$SignVlnPointSize,
                     group.by=input$SignGroupBy,
                     split.by=input$SignSplitBy
+                )+theme(
+                    axis.text.x = element_text(size=as.numeric(input$GSAxisSize)),
+                    axis.text.y = element_text(size=as.numeric(input$GSAxisSize)),
+                    plot.title=element_text(size=as.numeric(input$GSTitleSize)),
+                    legend.key.size = unit(as.numeric(input$GSLegendKeySize), 'cm'),
+                    legend.text = element_text(size=as.numeric(input$GSLegendFontSize))
                 )
                 return(signplot)  
             },error=function(e)
@@ -186,6 +185,13 @@ monocle_partition <- reactive({
                 cds = mon,
                 color_cells_by = "pseudotime",
                 show_trajectory_graph = TRUE
+                ) +theme(
+                    axis.text.x = element_text(size=as.numeric(input$GSAxisSize)),
+                    axis.text.y = element_text(size=as.numeric(input$GSAxisSize)),
+                    plot.title=element_text(size=as.numeric(input$GSTitleSize)),
+                    legend.key.size = unit(as.numeric(input$GSLegendKeySize), 'cm'),
+                    legend.title = element_text(size=as.numeric(input$GSLegendTitleSize)),
+                    legend.text = element_text(size=as.numeric(input$GSLegendFontSize))
                 )
             return(monplot)
                 
