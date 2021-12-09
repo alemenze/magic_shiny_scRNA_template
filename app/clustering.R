@@ -1,3 +1,6 @@
+# Clustering UMAP
+#################################################################
+
 observe({
     updateSelectInput(session, "SeuratObject", choices=c(names(data2$data)))
 })
@@ -45,5 +48,29 @@ output$DownloadUMAP <- downloadHandler(
             print(umapplotter())
             dev.off()
         }
+    }
+)
+
+# Counts
+#################################################################
+observe({
+    updateSelectInput(session, "SeuratSplit", choices=c(colnames(data2$data[[input$SeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')
+})
+counts_setup <- reactive({
+    Idents(data2$data[[input$SeuratObject]]) <- as.character(input$SeuratMeta)
+    ctable <- table(Idents(data2$data[[input$SeuratObject]]),data2$data[[input$SeuratObject]][[]][[input$SeuratSplit]])
+    return(as.data.frame.matrix(ctable))
+})
+
+output$umapcounts <- renderDataTable({
+    DT::datatable(counts_setup(), style = "bootstrap", options=list(pageLength = 15,scrollX=TRUE))
+})
+
+output$DownloadCountTable <- downloadHandler(
+    filename=function(){
+        paste('cellcount_table_',input$SeuratObject,'.csv',sep='')
+    },
+    content = function(file){
+        write.csv(counts_setup(), file)
     }
 )

@@ -142,27 +142,40 @@ tagList(
                             h2('UMAP Plots', align='center'),
                             selectInput("SeuratObject", label="Select Object Source", choices=NULL),
                             selectInput("SeuratMeta", label="Select Grouping", choices=NULL),
-                            radioButtons("UMAPLabel", label="Label Clusters", inline=TRUE, 
-                                        choices=c("True"='TRUE',"False"='FALSE'), selected="TRUE"),
-                            sliderInput("UMAPPointSize","Point Size: ", min=0.1, max=10, step=0.1, value=1),
-                            sliderInput("UMAPLabelSize","Label Size: ", min=1, max=20, step=1, value=4),
-                            sliderInput("UMAPAxisSize", "Axis Label Size: ", min=1, max=50, step=1, value=10),
-                            sliderInput("UMAPTitleSize", "Title Size: ", min=1, max=30, step=1, value=10),
-                            sliderInput("UMAPLegendKeySize", "Legend Key Size: ", min=0.25, max=5, step=0.25, value=1),
-                            sliderInput("UMAPLegendFontSize", "Legend Font Size: ", min=1, max=30, step=1, value=10),
-                            sliderInput('CHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
-                            sliderInput('CWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
+                            conditionalPanel("input.UMAP=='UMAP Plot'",
+                              radioButtons("UMAPLabel", label="Label Clusters", inline=TRUE, 
+                                          choices=c("True"='TRUE',"False"='FALSE'), selected="TRUE"),
+                              sliderInput("UMAPPointSize","Point Size: ", min=0.1, max=10, step=0.1, value=1),
+                              sliderInput("UMAPLabelSize","Label Size: ", min=1, max=20, step=1, value=4),
+                              sliderInput("UMAPAxisSize", "Axis Label Size: ", min=1, max=50, step=1, value=10),
+                              sliderInput("UMAPTitleSize", "Title Size: ", min=1, max=30, step=1, value=10),
+                              sliderInput("UMAPLegendKeySize", "Legend Key Size: ", min=0.25, max=5, step=0.25, value=1),
+                              sliderInput("UMAPLegendFontSize", "Legend Font Size: ", min=1, max=30, step=1, value=10),
+                              sliderInput('CHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
+                              sliderInput('CWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
+                            ),
+                            conditionalPanel("input.UMAP=='Cell count tables'",
+                              selectInput("SeuratSplit", label="Select Split by", choices=NULL)
+                            )
                         )
                     ),
                     column(9,
                         tabsetPanel(id='UMAP',
                             tabPanel(title='UMAP Plot', hr(),
                             withSpinner(type=6, color='#5bc0de',
-                                        plotOutput("umapplot", height='100%')
+                                plotOutput("umapplot", height='100%')
                                 ),
                             fluidRow(align='center',style="margin-top:25px;",
                                 column(12, selectInput("DownUMAPFormat", label='Choose download format', choices=c('jpeg','png','tiff'))),
                                 column(12, downloadButton('DownloadUMAP', 'Download the UMAP Plot'),style="margin-bottom:50px;")
+                              )
+                            ),
+                            tabPanel(title='Cell count tables', hr(),
+                            withSpinner(type=6, color='#5bc0de',
+                                dataTableOutput("umapcounts")
+                                ),
+                            fluidRow(align='center',style="margin-top:25px;",
+                                column(12, downloadButton('DownloadCountTable', 'Download the Count Table'),style="margin-bottom:50px;")
                               )
                             )
                         )
