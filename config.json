@@ -1,0 +1,15 @@
+{
+  "shiny": {
+    "PROJECTNAME": "projectname",
+    "image_name": "image_name",
+    "service_name": "service_name"
+  },
+  "kubernetes":{
+    "PROJECTID": "project_id_on_gcloud",
+    "zone": "us-east4-a",
+    "node_count":1,
+    "machine_type": "e2-standard-16",
+    "cluster_name": "cluster_name"
+
+  }
+}
