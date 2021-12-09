@@ -81,45 +81,87 @@ output$DownloadCycle <- downloadHandler(
 #################################################################
 observe({
     updateSelectInput(session, "SignGroupBy", choices=c(colnames(data2$data[[input$SSeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')
-    updateSelectInput(session, "SignSplitBy", choices=c(colnames(data2$data[[input$SSeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')
+})
 
+observe({
+    updateSelectInput(session, "SignSplitBy", choices=c(colnames(data2$data[[input$SSeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters') 
+})
+observe({
     temp <- msigdbr(species='mouse', category=input$SignSource)
     updateSelectInput(session, "SignPath", choices=unique(temp$gs_name))   
+})
+observe({
+    GenesList=unique(all.markers$gene)
+    updateSelectizeInput(session, "SignGenes", choices=GenesList, server=TRUE, options = list(maxOptions = 50))  
 })
 
 
 signature_plotter <- reactive({
-    withProgress(message='Performing gene set signature enrichment',
-        detail='Please stand by...',
-        {
-            shiny::setProgress(value=0.4, detail='Scoring the matrix')
-            temp <- msigdbr(species='mouse', category=input$SignSource)
-            genenames <- subset(temp, gs_name==input$SignPath)
-
-            tryCatch({
-                score <- AddModuleScore(data2$data[[input$SSeuratObject]],features=c(genenames$gene_symbol), name='Module', ctrl=10)
-
-                shiny::setProgress(value=0.8, detail='Creating the plot')
-
-                signplot <- VlnPlot(score, features='Module1',
-                    pt.size=input$SignVlnPointSize,
-                    group.by=input$SignGroupBy,
-                    split.by=input$SignSplitBy
-                )+theme(
-                    axis.text.x = element_text(size=as.numeric(input$GSAxisSize)),
-                    axis.text.y = element_text(size=as.numeric(input$GSAxisSize)),
-                    plot.title=element_text(size=as.numeric(input$GSTitleSize)),
-                    legend.key.size = unit(as.numeric(input$GSLegendKeySize), 'cm'),
-                    legend.text = element_text(size=as.numeric(input$GSLegendFontSize))
-                )
-                return(signplot)  
-            },error=function(e)
+    if (input$SignCustom=='MSigDB'){
+        withProgress(message='Performing gene set signature enrichment',
+            detail='Please stand by...',
             {
-                status=paste("Module Score Error: ", e$message)
-                showNotification(id="errorNotify", status, type='error', duration=NULL)
-            })               
-        }
-    )
+                shiny::setProgress(value=0.4, detail='Scoring the matrix')
+                temp <- msigdbr(species='mouse', category=input$SignSource)
+                genenames <- subset(temp, gs_name==input$SignPath)
+
+                tryCatch({
+                    score <- AddModuleScore(data2$data[[input$SSeuratObject]],features=c(genenames$gene_symbol), name='Module', ctrl=10)
+
+                    shiny::setProgress(value=0.8, detail='Creating the plot')
+
+                    signplot <- VlnPlot(score, features='Module1',
+                        pt.size=input$SignVlnPointSize,
+                        group.by=input$SignGroupBy,
+                        split.by=input$SignSplitBy
+                    )+theme(
+                        axis.text.x = element_text(size=as.numeric(input$GSAxisSize)),
+                        axis.text.y = element_text(size=as.numeric(input$GSAxisSize)),
+                        plot.title=element_text(size=as.numeric(input$GSTitleSize)),
+                        legend.key.size = unit(as.numeric(input$GSLegendKeySize), 'cm'),
+                        legend.text = element_text(size=as.numeric(input$GSLegendFontSize))
+                    )
+                    return(signplot)  
+                },error=function(e)
+                {
+                    status=paste("Module Score Error: ", e$message)
+                    showNotification(id="errorNotify", status, type='error', duration=NULL)
+                })               
+            }
+        )
+    }
+    if (input$SignCustom=='Custom'){
+        withProgress(message='Performing gene set signature enrichment',
+            detail='Please stand by...',
+            {
+                shiny::setProgress(value=0.4, detail='Scoring the matrix')
+
+                tryCatch({
+                    score <- AddModuleScore(data2$data[[input$SSeuratObject]],features=c(input$SignGenes), name='Module', ctrl=10)
+
+                    shiny::setProgress(value=0.8, detail='Creating the plot')
+
+                    signplot <- VlnPlot(score, features='Module1',
+                        pt.size=input$SignVlnPointSize,
+                        group.by=input$SignGroupBy,
+                        split.by=input$SignSplitBy
+                    )+theme(
+                        axis.text.x = element_text(size=as.numeric(input$GSAxisSize)),
+                        axis.text.y = element_text(size=as.numeric(input$GSAxisSize)),
+                        plot.title=element_text(size=as.numeric(input$GSTitleSize)),
+                        legend.key.size = unit(as.numeric(input$GSLegendKeySize), 'cm'),
+                        legend.text = element_text(size=as.numeric(input$GSLegendFontSize))
+                    )
+                    return(signplot)  
+                },error=function(e)
+                {
+                    status=paste("Module Score Error: ", e$message)
+                    showNotification(id="errorNotify", status, type='error', duration=NULL)
+                })               
+            }
+        )
+    }
+    
 })
 
 observe({

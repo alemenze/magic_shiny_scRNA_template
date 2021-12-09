@@ -24,8 +24,6 @@ library(Seurat)
 library(hdf5r)
 library(cowplot)
 library(SingleR)
-#library(scRNAseq)
-#library(slingshot)
 library(SeuratWrappers)
 library(monocle3)
 library(patchwork)
@@ -369,8 +367,13 @@ tagList(
                             conditionalPanel("input.GeneSignatures=='Gene Lists'",
                               h2('Pathway Signatures', align='center'),
                               markdown("Warning- These may fail regularly. This is due to the dropout nature of single cell and there being insufficient genes to calculate module scoring."),
-                              #Add upload option?
-                              radioButtons("SignSource",label='MSigDB Collection:',inline=TRUE, choices=c('Hallmark Gene Sets'='H',
+                              radioButtons("SignCustom", label="Custom signature list or curated list: ", inline=TRUE,
+                                choices=c('Custom'='Custom','MSigDB lists'='MSigDB'), selected='MSigDB'),
+                              conditionalPanel("input.SignCustom=='Custom'",
+                                selectizeInput("SignGenes", label="Select the genes for your signature: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select'))
+                              ),
+                              conditionalPanel("input.SignCustom=='MSigDB'",
+                                radioButtons("SignSource",label='MSigDB Collection:',inline=TRUE, choices=c('Hallmark Gene Sets'='H',
                                 'Positional Gene Sets'='C1',
                                 'Curated Gene Sets'='C2',
                                 'Regulatory Target Gene Sets'='C3',
@@ -379,12 +382,12 @@ tagList(
                                 'Oncogenic Signature Gene Sets'='C6',
                                 'Immunologic Signature Gene Sets'='C7',
                                 'Cell Type Signature Gene Sets'='C8'), selected='H'),
-                              selectInput("SignPath", label="Select Gene Set", choices=NULL),
+                                selectInput("SignPath", label="Select Gene Set", choices=NULL),
+                              ),
                               sliderInput("SignVlnPointSize","Point Size: ", min=0.1, max=10, step=0.1, value=1),
                               selectInput("SignGroupBy", label="Group By", choices=NULL),
                               selectInput("SignSplitBy", label="Split By", choices=NULL)
                             ),
-                            ## Add GSEA?
                             conditionalPanel("input.GeneSignatures=='Pseudotime'",
                               h2('Monocle Pseudotime',align='center'),
                               selectInput("MonocleRoot", label='Select Root Node', choices=NULL),
@@ -442,20 +445,51 @@ tagList(
                 fluidRow(
                     column(3,
                         wellPanel(
-                            conditionalPanel("input.CrossComparisons=='Tables'",
-                              h2('Cross Comparisons',align='center'),
-                              selectInput("CCSeuratObject", label="Select Object Source", choices=NULL),
-                              selectInput("CCIdent", label="Select Grouping", choices=NULL),
-                              selectizeInput("CCCluster1", label="Comparison Numerator: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')),
-                              selectizeInput("CCCluster2", label="Comparison Denominator: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')), 
-                              radioButtons("CCPos",label='Only Positive Markers',inline=TRUE, choices=c('True'='TRUE','False'='FALSE'), selected='TRUE'),
-                              sliderInput('CCLog', label='LogFC Threshold: ', min=0.05, max=1, step=0.05, value=0.25),
-                              sliderInput('CCPct', label='Minimum Percentage: ', min=0.01, max=0.5, step=0.01, value=0.1),
-                              radioButtons("CCOptions",label='Subset Grouping Options',inline=TRUE, choices=c('True'='TRUE','False'='FALSE'), selected='FALSE'),
-                              conditionalPanel("input.CCOptions=='TRUE'",
-                                selectInput("CCSubIdent", label="Select Subset Grouping", choices=NULL),
-                                selectInput("CCSubIdentChoice", label="Subset Ident: ", choices=NULL)
-                              )
+                            h2('Cross Comparisons',align='center'),
+                            selectInput("CCSeuratObject", label="Select Object Source", choices=NULL),
+                            selectInput("CCIdent", label="Select Grouping", choices=NULL),
+                            selectizeInput("CCCluster1", label="Comparison Numerator: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')),
+                            selectizeInput("CCCluster2", label="Comparison Denominator: ", multiple=TRUE, choices=NULL, options=list(placeholder='Select')), 
+                            radioButtons("CCPos",label='Only Positive Markers',inline=TRUE, choices=c('True'='TRUE','False'='FALSE'), selected='TRUE'),
+                            sliderInput('CCLog', label='LogFC Threshold: ', min=0.05, max=1, step=0.05, value=0.25),
+                            sliderInput('CCPct', label='Minimum Percentage: ', min=0.01, max=0.5, step=0.01, value=0.1),
+                            radioButtons("CCOptions",label='Subset Grouping Options',inline=TRUE, choices=c('True'='TRUE','False'='FALSE'), selected='FALSE'),
+                            conditionalPanel("input.CCOptions=='TRUE'",
+                              selectInput("CCSubIdent", label="Select Subset Grouping", choices=NULL),
+                              selectInput("CCSubIdentChoice", label="Subset Ident: ", choices=NULL)
+                            ),
+
+                            conditionalPanel("input.CrossComparisons=='Over Representation'",
+                                h3('Over Representation Settings: '),
+                                radioButtons("Enrichpval", label="FDR adjusted P or p-value for input selection", inline=TRUE, 
+                                    choices=c("FDR adjusted P"='padj',"P-value"='pvalue'), selected="padj"),
+                                radioButtons("ORASet", label="Selected gene set: ", inline=TRUE, 
+                                    choices=c("Gene ontology"='GO',"KEGG"='kegg','MSigDB'='msigdb'), selected="GO"),
+                                conditionalPanel("input.ORASet=='GO'",
+                                    radioButtons("ORAOnt", label='Select Ontology Source: ', inline=TRUE,
+                                    choices=c('All'='ALL','Biological Processes'='BP','Molecular Functions'='MF','Cellular Components'='CC'), selected='ALL')
+                                ),
+                                conditionalPanel("input.ORASet=='msigdb'",
+                                    radioButtons("ORAMSig", label='Select Ontology Source: ', inline=TRUE,
+                                    choices=c('H'='H','C1'='C1','C2'='C2','C3'='C3','C4'='C4','C5'='C5','C6'='C6','C7'='C7'), selected='H')
+                                ), 
+                                radioButtons("ORAPVal", label="P value correction: ", inline=TRUE, 
+                                    choices=c("None"='none','Bonferroni'='bonferroni','FDR'='fdr'), selected="none"),
+                                h3('Plot Settings: '),
+                                radioButtons("ORAPlotType", label="Plot Type: ", inline=TRUE, 
+                                    choices=c("Dot Plot"='dotplot','Bar Chart'='barchart','Enrichment Map'='emap'), selected="dotplot"), 
+                                sliderInput("ORANCategories","Number of pathways to show: ", min=5, max=100, step=5, value=10),
+                                sliderInput("ORAFontSize","Font Size: ", min=1, max=30, step=1, value=10),
+                                conditionalPanel("input.ORAPlotType=='dotplot'",
+                                    sliderInput("ORAYWidth","Pathway Label Width: ", min=5, max=100, step=5, value=40)
+                                ),
+                                radioButtons("ShowORATable", label="Show Over Representation Table: ", inline=TRUE, 
+                                    choices=c("No"='no','Yes'='yes'), selected="no"),                       
+                            ),
+                            
+                            conditionalPanel("input.CrossComparisons=='Over Representation'",
+                                sliderInput('EnrichHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
+                                sliderInput('EnrichWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
                             )
                         )
                     ),
@@ -468,7 +502,29 @@ tagList(
                               fluidRow(
                                     column(12, align='center',downloadButton('DownloadCross', 'Download the Cross Comparison Table'))
                                 )
-                            
+                            ),
+
+                            tabPanel(title='Over Representation',hr(),
+                                fluidRow(
+                                    withSpinner(type=6, color='#5bc0de',  
+                                        plotOutput("oraplot", height='100%')
+                                    )
+                                ),
+                                fluidRow(align='center',style="margin-top:25px;",
+                                    column(12, selectInput("DownORAFormat", label='Choose download format', choices=c('jpeg','png','tiff'))),
+                                    column(12, downloadButton('DownloadORAPlot', 'Download ORA Plot'),style="margin-bottom:50px;")
+                                ),
+                                fluidRow(style="margin-top:25px;",
+                                    conditionalPanel("input.ShowORATable=='yes'",
+                                        h3('Over Representation Analysis Table'),
+                                        withSpinner(type=6, color='#5bc0de',  
+                                            dataTableOutput("ora_table")
+                                        )
+                                    )
+                                ),
+                                fluidRow(align='center',style="margin-top:25px;",
+                                    column(12, downloadButton('DownloadORATable', 'Download ORA Table'),style="margin-bottom:50px;")
+                                )
                             )
                         )
                     )

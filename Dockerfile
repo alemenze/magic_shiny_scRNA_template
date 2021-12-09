@@ -13,6 +13,8 @@ RUN R -e "remotes::install_github('satijalab/seurat-wrappers')"
 RUN R -e "devtools::install_github('cole-trapnell-lab/monocle3')"
 RUN R -e "BiocManager::install(c('clusterProfiler','AnnotationHub','enrichplot'))"
 RUN R -e "install.packages(c('rhandsontable','circlize'))"
+RUN R -e "BiocManager::install('org.Mm.eg.db', character.only = TRUE)"
+RUN R -e "BiocManager::install('org.Hs.eg.db', character.only = TRUE)"
 
 COPY ./app /srv/shiny-server/
 COPY shiny-customized.config /etc/shiny-server/shiny-server.conf
