@@ -119,7 +119,7 @@ dotplot_plotter <- reactive({
     if(input$DotTop=='Tops'){
         dataM$markerslist[[input$MTSeuratObject]] %>% group_by(cluster) %>% top_n(n=input$DotTops, wt=avg_log2FC) -> tops
 
-        dotplot_plot <- DotPlot(data2$data[[input$MSeuratObject]], features=c(top$gene), group.by=input$DGroupBy)+theme(
+        dotplot_plot <- DotPlot(data2$data[[input$MSeuratObject]], features=c(tops$gene), group.by=input$DGroupBy)+theme(
             axis.text.x = element_text(size=as.numeric(input$MGAxisSize)),
             axis.text.y = element_text(size=as.numeric(input$MGAxisSize)),
             plot.title=element_text(size=as.numeric(input$MGTitleSize)),
@@ -168,5 +168,30 @@ output$DownloadDot <- downloadHandler(
             print(dotplot_plotter())
             dev.off()
         }
+    }
+)
+
+# Avg Expression Tables
+#################################################################
+observe({
+    updateSelectInput(session, "EGroupBy", choices=c(colnames(data2$data[[input$SeuratObject]][[]]),'seurat_clusters'), selected='seurat_clusters')   
+})
+
+exp_table_setup <- reactive({
+    temp <- DotPlot(data2$data[[input$MSeuratObject]], features=all.markers$gene, group.by=input$EGroupBy, assay='SCT')
+    temp <- temp$data[,colnames(temp$data) %in% c('avg.exp','pct.exp','features.plot','id')]
+    return(temp)
+})
+
+output$expressions <- renderDataTable({
+    DT::datatable(exp_table_setup(), style = "bootstrap", options=list(pageLength = 15,scrollX=TRUE))
+})
+
+output$DownloadAvgExp <- downloadHandler(
+    filename=function(){
+        paste('avg_expression_table_',input$MSeuratObject,'.csv',sep='')
+    },
+    content = function(file){
+        write.csv(exp_table_setup(), file)
     }
 )

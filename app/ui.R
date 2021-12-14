@@ -273,7 +273,9 @@ tagList(
                         wellPanel(
                             h2('Marker Genes', align='center'),
                             selectInput("MSeuratObject", label="Select Object Source", choices=NULL),
-                            selectInput("MTSeuratObject", label="Select List Source", choices=NULL),
+                            conditionalPanel("input.MarkerGenes=='Heatmaps' || input.MarkerGenes=='Dot Plots' || input.MarkerGenes=='Tables'",
+                              selectInput("MTSeuratObject", label="Select List Source", choices=NULL)
+                            ),
                             conditionalPanel("input.MarkerGenes=='Tables'",
                               selectInput("ClusterMarkers", label="View Cluster: ", choices=NULL),
                               actionButton('marker_columns','Column Descriptors',class='btn btn-info',style="margin-top:15px;")
@@ -297,6 +299,9 @@ tagList(
                               conditionalPanel("input.DotTop=='Tops'",
                                 sliderInput("DotTops","Number of markers per cluster (if available): ", min=5, max=50, step=5, value=10)
                               )
+                            ),
+                            conditionalPanel("input.MarkerGenes=='Avg Expression Tables'",
+                              selectInput("EGroupBy", label='Group By', choices=NULL)
                             ),
                             conditionalPanel("input.MarkerGenes=='Heatmaps' || input.MarkerGenes=='Dot Plots'",
                               sliderInput("MGAxisSize", "Axis Label Size: ", min=1, max=50, step=1, value=10),
@@ -337,6 +342,14 @@ tagList(
                                 column(12, selectInput("DownDotFormat", label='Choose download format', choices=c('jpeg','png','tiff'))),
                                 column(12, downloadButton('DownloadDot', 'Download the Dot Plot'),style="margin-bottom:50px;")
                               )
+                            ),
+                            tabPanel(title='Avg Expression Tables', hr(),
+                              withSpinner(type=6, color='#5bc0de',
+                                    dataTableOutput('expressions')
+                                ),
+                              fluidRow(
+                                    column(12, align='center',downloadButton('DownloadAvgExp', 'Download the Avg Expression Table'))
+                                )
                             )
                         )
                     )
