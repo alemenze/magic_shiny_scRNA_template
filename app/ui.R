@@ -300,14 +300,30 @@ tagList(
                                 sliderInput("DotTops","Number of markers per cluster (if available): ", min=5, max=50, step=5, value=10)
                               )
                             ),
-                            conditionalPanel("input.MarkerGenes=='Avg Expression Tables'",
+                            conditionalPanel("input.MarkerGenes=='Avg Expression Tables' || input.MarkerGenes=='Avg Expression Heatmaps'",
                               selectInput("EGroupBy", label='Group By', choices=NULL)
+                            ),
+                            conditionalPanel("input.MarkerGenes=='Avg Expression Heatmaps'",
+                              selectizeInput("HEgene_select", "Please list genes of choice", choices = NULL, multiple=TRUE, options=list(placeholder='Search')),
+                              radioButtons('HERowClust', label='Cluster rows: ', inline=TRUE,
+                                  choices=c('True'='TRUE','False'='FALSE'), selected='TRUE'),
+                              radioButtons('HEColClust', label='Cluster columns: ', inline=TRUE,
+                                  choices=c('True'='TRUE','False'='FALSE'), selected='FALSE'),
+                              radioButtons('HEScale', label='Scale By: ', inline=TRUE,
+                                  choices=c('Row'='row','Column'='column','None'='none'), selected='row'),
+                              radioButtons('HEShowNames', label='Show the rownames: ', inline=TRUE,
+                                  choices=c('No'='FALSE','Yes'='TRUE'), selected='TRUE'),
+                              sliderInput("HEXsize", 'X-Axis Label Size', min=1, max=30, step=1, value=10),
+                              radioButtons("HEang", label='X-Axis Angle', inline=TRUE,
+                                  choices=c('0'=0,'45'=45,'90'=90,'270'=270,'315'=315), selected=45)
                             ),
                             conditionalPanel("input.MarkerGenes=='Heatmaps' || input.MarkerGenes=='Dot Plots'",
                               sliderInput("MGAxisSize", "Axis Label Size: ", min=1, max=50, step=1, value=10),
                               sliderInput("MGTitleSize", "Title Size: ", min=1, max=30, step=1, value=10),
                               sliderInput("MGLegendKeySize", "Legend Key Size: ", min=0.25, max=5, step=0.25, value=1),
-                              sliderInput("MGLegendFontSize", "Legend Font Size: ", min=1, max=30, step=1, value=10),
+                              sliderInput("MGLegendFontSize", "Legend Font Size: ", min=1, max=30, step=1, value=10)                              
+                            ),
+                            conditionalPanel("input.MarkerGenes=='Heatmaps' || input.MarkerGenes=='Dot Plots' || input.MarkerGenes=='Avg Expression Heatmaps'",
                               sliderInput('HHeight', label='Plot Heights: ', min=50, max=2000, step=10, value=800),
                               sliderInput('HWidth', label='Plot Widths: ',  min=50, max=2000, step=10, value=800)
                             )
@@ -350,6 +366,15 @@ tagList(
                               fluidRow(
                                     column(12, align='center',downloadButton('DownloadAvgExp', 'Download the Avg Expression Table'))
                                 )
+                            ),
+                            tabPanel(title='Avg Expression Heatmaps', hr(),
+                              withSpinner(type=6, color='#5bc0de',
+                                  plotOutput("heatmap_avg_exp", height='100%')
+                                ),
+                              fluidRow(align='center',style="margin-top:25px;",
+                                column(12, selectInput("DownHEFormat", label='Choose download format', choices=c('jpeg','png','tiff'))),
+                                column(12, downloadButton('DownloadHE', 'Download the Heatmap'),style="margin-bottom:50px;")
+                              )
                             )
                         )
                     )

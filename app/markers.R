@@ -195,3 +195,77 @@ output$DownloadAvgExp <- downloadHandler(
         write.csv(exp_table_setup(), file)
     }
 )
+
+# Avg Expression Heatmap
+#################################################################
+observe({
+    GenesList=unique(all.markers$gene)
+    updateSelectizeInput(session, "HEgene_select", choices=GenesList, server=TRUE, options = list(maxOptions = 50))   
+})
+
+exp_hm <- reactive({
+    cluster_r=TRUE
+    if (input$HERowClust=='FALSE'){
+        cluster_r=FALSE
+    }
+    cluster_c=TRUE
+    if (input$HEColClust=='FALSE'){
+        cluster_c=FALSE
+    }
+
+    shownames=FALSE
+    if (input$HEShowNames=='TRUE'){
+        shownames=TRUE
+    }
+
+    my_colors = brewer.pal(n = 11, name = "RdBu")
+    my_colors = colorRampPalette(my_colors)(50)
+    my_colors = rev(my_colors)
+
+    validate(need(length(input$HEgene_select)>1, message = "Please choose at least 2 genes."))
+    chosen_genes <- c(input$HEgene_select)
+
+    temp <- DotPlot(data2$data[[input$MSeuratObject]], features=all.markers$gene, group.by=input$EGroupBy, assay='SCT')
+    temp <- temp$data %>% select('features.plot','avg.exp','id') %>% group_by(features.plot) %>% pivot_wider(names_from=id, values_from=avg.exp) %>% drop_na(features.plot) %>% unnest(cols = everything()) 
+    temp <- as.data.frame(temp)
+    temp[is.na(temp)] = 0
+    temp <- temp %>% tibble::column_to_rownames(var='features.plot')
+    temp <- temp[rowSums(temp[])>0,]
+    
+    DataSet <- temp[row.names(temp) %in% chosen_genes,]
+
+    plot <- pheatmap(DataSet, cluster_rows=cluster_r, cluster_cols=cluster_c, color=my_colors,
+        scale=input$HEScale, show_rownames=shownames, fontsize_col=input$HEXsize, angle_col=input$HEang)
+    
+    return(plot)
+
+})
+
+observe({
+    output$heatmap_avg_exp <- renderPlot({
+        exp_hm()
+    },height=input$HHeight, width=input$HWidth)
+})
+
+output$DownloadHE <- downloadHandler(
+    filename=function(){
+        paste('avg_expression_heatmap',input$DownHEFormat,sep='.')
+    },
+    content=function(file){   
+        if(input$DownHEFormat=='jpeg'){
+            jpeg(file, height=input$HHeight, width=input$HWidth)
+            print(exp_hm())
+            dev.off()
+        }
+        if(input$DownHEFormat=='png'){
+            png(file, height=input$HHeight, width=input$HWidth)
+            print(exp_hm())
+            dev.off()
+        }
+        if(input$DownHEFormat=='tiff'){
+            tiff(file, height=input$HHeight, width=input$HWidth)
+            print(exp_hm())
+            dev.off()
+        }
+    }
+)
