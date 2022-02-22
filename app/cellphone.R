@@ -89,8 +89,8 @@ observe({
     interactions_genes <- unique(plot_start$pair)
     interactions_clusters <- unique(plot_start$clusters)
 
-    updateSelectizeInput(session, "cpgenes_select", choices=c(interactions_genes), server=TRUE, options = list(maxOptions = 50))
-    updateSelectizeInput(session, "cpclusters_select", choices=(interactions_clusters), server=TRUE, options = list(maxOptions = 50)) 
+    updateSelectizeInput(session, "cpgenes_select", choices=c(interactions_genes), server=TRUE)
+    updateSelectizeInput(session, "cpclusters_select", choices=(interactions_clusters), server=TRUE) 
 })
 
 cpdot_plotter <- reactive({
