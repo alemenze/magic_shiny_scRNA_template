@@ -256,7 +256,7 @@ cp_heatmap_plotter <- reactive({
     
 
     pos_pairs <- expand.grid(cellphone_chords[[input$CellphoneHMSource]]$SOURCE, cellphone_chords[[input$CellphoneHMSource]]$TARGET)
-    pos_pairs$pairs <- paste(pos_pairs$Var1, pos_pairs$Var2, sep='|')
+    pos_pairs$pairs <- paste(pos_pairs$Var1, pos_pairs$Var2, sep=';')
     pairs <- unique(pos_pairs$pairs)
 
     df <- data.frame(matrix(NA, nrow = length(unique(cellphone_chords[[input$CellphoneHMSource]]$SOURCE)), ncol = (length(unique(cellphone_chords[[input$CellphoneHMSource]]$TARGET)))+1))
@@ -266,8 +266,8 @@ cp_heatmap_plotter <- reactive({
         counts <- c()
         
         for(i in pairs){
-            var1 <- strsplit(i, '|')[[1]][1]
-            var2 <- strsplit(i, '|')[[1]][3]
+            var1 <- strsplit(i, ';')[[1]][1]
+            var2 <- strsplit(i, ';')[[1]][2]
             if(var1==f){
                 row <- cellphone_chords[[input$CellphoneHMSource]][which(cellphone_chords[[input$CellphoneHMSource]]$SOURCE == var1 & cellphone_chords[[input$CellphoneHMSource]]$TARGET == var2 ),]
                 counts <- c(counts, row$count)
