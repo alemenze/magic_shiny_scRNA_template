@@ -1,5 +1,5 @@
 observe({
-    GenesList=unique(all.markers$gene)
+    GenesList=unique(rownames(data2$data[[input$GSeuratObject]]))
     updateSelectizeInput(session, "gene_select", choices=GenesList, server=TRUE, options = list(maxOptions = 50))   
 })
 observe({

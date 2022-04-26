@@ -91,7 +91,7 @@ observe({
     updateSelectInput(session, "SignPath", choices=unique(temp$gs_name))   
 })
 observe({
-    GenesList=unique(all.markers$gene)
+    GenesList=unique(rownames(data2$data[[input$SSeuratObject]]))
     updateSelectizeInput(session, "SignGenes", choices=GenesList, server=TRUE, options = list(maxOptions = 50))  
 })
 

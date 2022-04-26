@@ -39,7 +39,7 @@ output$DownloadMarkers <- downloadHandler(
 # Heatmaps
 #################################################################
 observe({
-    GenesList=unique(all.markers$gene)
+    GenesList=unique(rownames(data2$data[[input$MSeuratObject]]))
     updateSelectizeInput(session, "HSelectedGenes", choices=GenesList, server=TRUE, options = list(maxOptions = 50))  
 })
 observe({
@@ -108,7 +108,7 @@ output$DownloadHeat <- downloadHandler(
 # Dot Plots
 #################################################################
 observe({
-    GenesList=unique(all.markers$gene)
+    GenesList=unique(rownames(data2$data[[input$MSeuratObject]]))
     updateSelectizeInput(session, "DSelectedGenes", choices=GenesList, server=TRUE, options = list(maxOptions = 50))  
 })
 observe({
@@ -178,7 +178,7 @@ observe({
 })
 
 exp_table_setup <- reactive({
-    temp <- DotPlot(data2$data[[input$MSeuratObject]], features=all.markers$gene, group.by=input$EGroupBy, assay='SCT')
+    temp <- DotPlot(data2$data[[input$MSeuratObject]], features=unique(rownames(data2$data[[input$MSeuratObject]])), group.by=input$EGroupBy, assay='SCT')
     temp <- temp$data[,colnames(temp$data) %in% c('avg.exp','pct.exp','features.plot','id')]
     return(temp)
 })
@@ -199,7 +199,7 @@ output$DownloadAvgExp <- downloadHandler(
 # Avg Expression Heatmap
 #################################################################
 observe({
-    GenesList=unique(all.markers$gene)
+    GenesList=unique(rownames(data2$data[[input$MSeuratObject]]))
     updateSelectizeInput(session, "HEgene_select", choices=GenesList, server=TRUE, options = list(maxOptions = 50))   
 })
 
@@ -225,7 +225,7 @@ exp_hm <- reactive({
     validate(need(length(input$HEgene_select)>1, message = "Please choose at least 2 genes."))
     chosen_genes <- c(input$HEgene_select)
 
-    temp <- DotPlot(data2$data[[input$MSeuratObject]], features=all.markers$gene, group.by=input$EGroupBy, assay='SCT')
+    temp <- DotPlot(data2$data[[input$MSeuratObject]], features=unique(rownames(data2$data[[input$MSeuratObject]])), group.by=input$EGroupBy, assay='SCT')
     temp <- temp$data %>% select('features.plot','avg.exp','id') %>% group_by(features.plot) %>% pivot_wider(names_from=id, values_from=avg.exp) %>% drop_na(features.plot) %>% unnest(cols = everything()) 
     temp <- as.data.frame(temp)
     temp[is.na(temp)] = 0
